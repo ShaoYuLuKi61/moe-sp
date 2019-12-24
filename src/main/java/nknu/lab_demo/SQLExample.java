@@ -2,6 +2,7 @@ package nknu.lab_demo;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -43,14 +44,17 @@ public class SQLExample {
     
     private boolean isValidUser(String userName, String pass) throws ClassNotFoundException, SQLException {
         Connection conn = getDBConnection();
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT * FROM USER WHERE userName='"+userName+"' AND password='"+pass+"'");
+        String sql = "SELECT * FROM USER WHERE userName=? AND password=?";
+        PreparedStatement pStatement = conn.prepareStatement(sql);
+        pStatement.setString(1, userName);
+        pStatement.setString(2, pass);
+        ResultSet rs = pStatement.executeQuery();
         boolean valid = false;
         if(rs.next()) {
             valid = true;
         }
         rs.close();
-        stmt.close();
+        pStatement.close();
         conn.commit();
         conn.close();
         return valid;
